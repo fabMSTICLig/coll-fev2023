@@ -1,34 +1,25 @@
-// NeoPixel Ring simple sketch (c) 2013 Shae Erisson
-// Released under the GPLv3 license to match the rest of the
-// Adafruit NeoPixel library
+//Code pour le projet cible du stage de collégiens de Persyval 2023
 
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
 #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
 #endif
 
+//Bibliotèque pour l'écran LCD
 #include "HD44780_LCD_PCF8574.h"
 
 // Which pin on the Arduino is connected to the NeoPixels?
-#define PIN        6 // On Trinket or Gemma, suggest changing this to 1
-
+#define PIN        6
 // How many NeoPixels are attached to the Arduino?
-#define NUMPIXELS 5 // Popular NeoPixel ring size
-
-// When setting up the NeoPixel library, we tell it how many pixels,
-// and which pin to use to send signals. Note that for older NeoPixel
-// strips you might need to change the third parameter -- see the
-// strandtest example for more information on possible values.
+#define NUMPIXELS 5
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
+
 HD44780LCD myLCD( 4, 20, 0x27); // instantiate an object
-
-#define DELAYVAL 500 // Time (in milliseconds) to pause between pixels
-
+// tableau permettant d'enregistrer la couleur de chaque LED
 uint32_t ledt [5] = {0};
-
+// tableau de sauvegarder la valeur des capteurs au démarage de la arduino
 int svd [5] = {0};
-
 //seuil lumiere
 int seuil = 50;
 
@@ -40,8 +31,8 @@ void setup() {
 #endif
   // END of Trinket-specific code.
 
-  pixels.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
-  pixels.clear(); // Set all pixel colors to 'off'
+  pixels.begin();
+  pixels.clear();
 
   myLCD.PCF8574_LCDInit(LCDCursorTypeOff);
   myLCD.PCF8574_LCDClearScreen();
@@ -49,14 +40,17 @@ void setup() {
   
   pinMode(3, INPUT_PULLUP);
 
-  
+  //Chois des couleur pour chaque LED
   ledt[0] = pixels.Color(150, 0, 150);
   ledt[1] = pixels.Color (25, 0, 150);
   ledt[2] = pixels.Color (150, 50, 0);
   ledt[3] = pixels.Color (0, 150, 25);
   ledt[4] = pixels.Color (150, 150, 150);
 
+  //Initialisation de l'écran LCD
   myLCD.PCF8574_LCDClearScreen();
+
+  //Callibrage des capteurs
   myLCD.PCF8574_LCDGOTO(LCDLineNumberOne, 0);
   myLCD.print("Calibrage");
   delay(10000);
@@ -65,7 +59,8 @@ void setup() {
   svd[1] = analogRead(A1);
   svd[3] = analogRead(A3);
   svd[4] = analogRead(A4);
-    
+
+  //Text de démarage de la cible
   myLCD.PCF8574_LCDClearScreen();
   myLCD.PCF8574_LCDGOTO(LCDLineNumberOne, 0);
   myLCD.print("Appuyez sur");
@@ -77,18 +72,23 @@ void setup() {
 
 void loop() {
 
+  //Attente de l'appui de boutton (En pullup donc on attent LOW)
   while (digitalRead(3) == HIGH) {
     delay(50);
   }
+  //On éteint les lumières et on efface l'écran
   pixels.clear();
   pixels.show();
   myLCD.PCF8574_LCDClearScreen();
+
+  
   myLCD.PCF8574_LCDGOTO(LCDLineNumberOne, 0);
   myLCD.print("Debut partie");
 
   int varal = random(5) + 5;
   delay(varal*1000);
-  
+
+  //Sauvegarde du temps
   uint32_t vart = millis();
   
   //Indice tableau
